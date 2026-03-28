@@ -11,15 +11,15 @@ const Navbar = () => {
   return (
     <>
       {/* Top Utility Bar */}
-      <div className="bg-gray-100 text-xs py-1 px-4 hidden md:block border-b border-gray-200">
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-gray-600">
-          <div className="flex items-center gap-4">
-            <span className="hover:text-green-600 cursor-pointer transition-colors">Sell on FruitBasket</span>
-            <span className="hover:text-green-600 cursor-pointer transition-colors">Download App</span>
+      <div className="bg-gray-100 text-[10px] sm:text-xs py-1.5 px-4 sm:px-6 lg:px-8 hidden md:block border-b border-gray-200">
+        <div className="max-w-7xl mx-auto flex justify-between items-center text-gray-500">
+          <div className="flex items-center gap-6">
+            <span className="hover:text-green-600 cursor-pointer transition-colors font-medium">Sell on FruitBasket</span>
+            <span className="hover:text-green-600 cursor-pointer transition-colors font-medium">Download App</span>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1 cursor-pointer hover:text-green-600"><MapPin size={12} /> Delivey to: <strong>Login to Set Location</strong></span>
-            <Link to="/contact" className="hover:text-green-600 cursor-pointer">Help & Support</Link>
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-1.5 cursor-pointer hover:text-green-600 transition-colors"><MapPin size={12} /> Deliver to: <strong>Login to Set Location</strong></span>
+            <Link to="/contact" className="hover:text-green-600 cursor-pointer transition-colors font-medium">Help & Support</Link>
           </div>
         </div>
       </div>
@@ -44,8 +44,8 @@ const Navbar = () => {
               <div className="relative w-full group">
                 <input
                   type="text"
-                  placeholder="Search for fresh vegetables, fruits, farmers..."
-                  className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-4 pr-12 py-2.5 transition-all group-hover:bg-white group-hover:shadow-md"
+                  placeholder="Search for fresh vegetables, fruits, staples..."
+                  className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full pl-4 pr-12 py-2.5 transition-all group-hover:bg-white group-hover:shadow-md outline-none"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <Search size={20} className="text-gray-400 group-hover:text-green-600" />

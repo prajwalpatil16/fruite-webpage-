@@ -25,16 +25,16 @@ const Contact = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-12 font-sans">
+    <div className="bg-gray-50 min-h-screen py-8 md:py-16 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Section */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
-            We'd love to hear from <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">you</span>
+        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4 sm:mb-6 tracking-tight">
+            Our farmers are <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">always listening</span>
           </h1>
-          <p className="text-lg text-gray-600">
-            Whether you have a question about our fresh produce, deliveries, partnerships, or anything else, our team is ready to answer all your questions.
+          <p className="text-base md:text-lg text-gray-500 leading-relaxed font-medium">
+            Have a question about your fresh delivery or want to know more about our growers? Our community support team is here to help you every step of the way.
           </p>
         </div>
 

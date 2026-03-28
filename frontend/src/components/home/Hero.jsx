@@ -10,12 +10,12 @@ const Hero = () => {
                 className="w-full h-full object-cover opacity-60"
                 alt="Hero"
             />
-            <div className="absolute inset-0 flex items-center justify-center text-center p-8 md:p-16">
+            <div className="absolute inset-0 flex items-center justify-center text-center p-6 md:p-16">
                 <div className="max-w-3xl text-white">
-                    <span className="inline-block py-1 px-3 rounded-full bg-white/20 border border-white/30 text-white text-sm font-medium mb-6 backdrop-blur-sm">
+                    <span className="inline-block py-1 px-3 rounded-full bg-white/20 border border-white/30 text-white text-xs sm:text-sm font-medium mb-4 sm:mb-6 backdrop-blur-sm">
                         From the farmer’s soil to the customer’s soul
                     </span>
-                    <h1 className="text-4xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
+                    <h1 className="text-3xl md:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight tracking-tight px-2 sm:px-0">
                         Food tastes better when <br className="hidden md:block" /> you know who grew it.
                     </h1>
                     <p className="text-lg md:text-xl text-gray-200 mb-10 font-light max-w-2xl mx-auto">
