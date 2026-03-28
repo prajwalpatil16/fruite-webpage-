@@ -1,7 +1,9 @@
 import React from 'react';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
+import { useCart } from '../../context/CartContext';
 
 const ProductCard = ({ product }) => {
+    const { addToCart } = useCart();
     return (
         <div className="bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-lg transition-all group flex flex-col h-full relative">
             <div className="h-40 md:h-48 overflow-hidden relative bg-gray-100">
@@ -41,7 +43,13 @@ const ProductCard = ({ product }) => {
                             <span className="text-lg font-bold text-gray-900">₹{product.price}</span>
                             <span className="text-xs text-gray-400">per {product.unit}</span>
                         </div>
-                        <button className="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-600 hover:text-white transition-colors">
+                        <button 
+                            onClick={(e) => {
+                                e.preventDefault();
+                                addToCart(product);
+                            }}
+                            className="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-600 hover:text-white transition-colors"
+                        >
                             <ShoppingCart size={18} />
                         </button>
                     </div>
