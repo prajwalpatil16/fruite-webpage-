@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ShoppingCart, User, Search, MapPin, ChevronDown, Package, Heart } from 'lucide-react';
+import { Menu, X, ShoppingCart, User, Search, MapPin, ChevronDown, Package, Heart, Truck } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
 const Navbar = () => {
@@ -68,10 +68,23 @@ const Navbar = () => {
                 <div className="absolute top-10 right-0 w-48 bg-white border border-gray-200 shadow-lg rounded-lg p-2 hidden group-hover:block transition-all transform origin-top-right z-50">
                   <Link to="/login" className="block w-full text-center bg-gradient-to-r from-green-400 to-green-600 text-white font-bold py-2 rounded mb-2 shadow-sm">Sign In</Link>
                   <div className="text-xs text-center text-gray-500 mb-2 border-b border-gray-100 pb-2">New customer? <Link to="/register" className="text-blue-600 hover:underline">Start here.</Link></div>
-                  <ul className="text-sm text-gray-700 space-y-2 pl-2">
-                    <li className="hover:text-green-600 cursor-pointer">Your Orders</li>
-                    <li className="hover:text-green-600 cursor-pointer">Your Wishlist</li>
-                    <li className="hover:text-green-600 cursor-pointer">Sell Products</li>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>
+                      <Link to="/orders" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-green-50 transition-colors hover:text-green-700 font-medium rounded-md">
+                        <Package size={16} /> My Orders
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/returns" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-green-50 transition-colors hover:text-green-700 font-medium rounded-md">
+                        <Truck size={16} /> Returns & Refunds
+                      </Link>
+                    </li>
+                    <li className="px-3 py-2 hover:text-green-600 cursor-pointer font-medium hover:bg-green-50 rounded-md transition-colors flex items-center gap-2">
+                      <Heart size={16} /> Your Wishlist
+                    </li>
+                    <li className="px-3 py-2 hover:text-green-600 cursor-pointer font-medium hover:bg-green-50 rounded-md transition-colors flex items-center gap-2">
+                      <Package size={16} /> Sell Products
+                    </li>
                   </ul>
                 </div>
               </div>
