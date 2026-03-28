@@ -12,6 +12,10 @@ import Contact from './pages/Contact';
 import Cart from './pages/Cart';
 import Orders from './pages/Orders';
 import Returns from './pages/Returns';
+import Profile from './pages/Profile';
+import Wishlist from './pages/Wishlist';
+import Checkout from './pages/Checkout';
+import ProductDetails from './pages/ProductDetails';
 
 function App() {
   return (
@@ -28,6 +32,10 @@ function App() {
           <Route path="cart" element={<Cart />} />
           <Route path="orders" element={<Orders />} />
           <Route path="returns" element={<Returns />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="wishlist" element={<Wishlist />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="product/:id" element={<ProductDetails />} />
         </Route>
       </Routes>
     </Router>

@@ -79,8 +79,15 @@ const Navbar = () => {
                         <Truck size={16} /> Returns & Refunds
                       </Link>
                     </li>
-                    <li className="px-3 py-2 hover:text-green-600 cursor-pointer font-medium hover:bg-green-50 rounded-md transition-colors flex items-center gap-2">
-                      <Heart size={16} /> Your Wishlist
+                    <li>
+                      <Link to="/profile" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-green-50 transition-colors hover:text-green-700 font-medium rounded-md">
+                        <User size={16} /> Manage Profile
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/wishlist" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-green-50 transition-colors hover:text-green-700 font-medium rounded-md">
+                        <Heart size={16} /> Your Wishlist
+                      </Link>
                     </li>
                     <li className="px-3 py-2 hover:text-green-600 cursor-pointer font-medium hover:bg-green-50 rounded-md transition-colors flex items-center gap-2">
                       <Package size={16} /> Sell Products

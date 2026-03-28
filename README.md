@@ -51,7 +51,7 @@ open index.html
 ---
 
 ## 👨‍💻 Built By
-Prajwal
+
 
 **Prajwal Patil** — Full Stack Developer, Bengaluru
 
