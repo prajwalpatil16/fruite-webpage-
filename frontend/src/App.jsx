@@ -8,6 +8,7 @@ import Farmers from './pages/Farmers';
 import Cooperative from './pages/Cooperative';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="cooperative" element={<Cooperative />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="contact" element={<Contact />} />
         </Route>
       </Routes>
     </Router>

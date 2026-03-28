@@ -17,7 +17,7 @@ const Navbar = () => {
           </div>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1 cursor-pointer hover:text-green-600"><MapPin size={12} /> Delivey to: <strong>Login to Set Location</strong></span>
-            <span className="hover:text-green-600 cursor-pointer">Help & Support</span>
+            <Link to="/contact" className="hover:text-green-600 cursor-pointer">Help & Support</Link>
           </div>
         </div>
       </div>
