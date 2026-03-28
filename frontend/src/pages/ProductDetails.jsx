@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ShoppingBag, Heart, ShieldCheck, Truck, Star, ArrowLeft, Leaf, Droplet, Sun } from 'lucide-react';
+import { ShoppingBag, Heart, ShieldCheck, Truck, Star, ArrowLeft, Leaf, Droplet, Sun, MapPin } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 const ProductDetails = () => {
