@@ -109,9 +109,9 @@ const Cart = () => {
                 </div>
               </div>
 
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-600/30 transition-all">
+              <Link to="/checkout" className="block w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-600/30 transition-all text-center">
                 Proceed to Checkout
-              </button>
+              </Link>
               
               <div className="mt-4 text-center">
                 <Link to="/" className="text-green-600 text-sm font-semibold hover:underline">

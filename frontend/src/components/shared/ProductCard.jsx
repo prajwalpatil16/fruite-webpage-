@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
@@ -6,26 +7,30 @@ const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     return (
         <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full relative">
-            <div className="h-40 md:h-52 overflow-hidden relative bg-gray-100">
+            <Link to={`/product/${product.id}`} className="block overflow-hidden relative bg-gray-100 h-40 md:h-52">
                 <img
                     src={product.image}
                     onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1000'}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <button className="absolute top-3 right-3 p-2 bg-white/95 backdrop-blur-sm rounded-full text-gray-400 hover:text-red-500 transition-all z-10 shadow-sm hover:scale-110">
-                    <Heart size={18} />
-                </button>
+                
                 {product.featureTag && (
                     <span className="absolute bottom-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg">
                         {product.featureTag}
                     </span>
                 )}
-            </div>
+            </Link>
+
+            <button className="absolute top-3 right-3 p-2 bg-white/95 backdrop-blur-sm rounded-full text-gray-400 hover:text-red-500 transition-all z-10 shadow-sm hover:scale-110">
+                <Heart size={18} />
+            </button>
 
             <div className="p-4 flex flex-col flex-1">
                 <div className="mb-2">
-                    <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-2 hover:text-green-600 cursor-pointer transition-colors">{product.name}</h3>
+                    <Link to={`/product/${product.id}`}>
+                        <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-2 hover:text-green-600 transition-colors uppercase tracking-tight">{product.name}</h3>
+                    </Link>
                     <p className="text-xs text-gray-400 mt-1 font-medium italic">by {product.farmer}</p>
                 </div>
 
