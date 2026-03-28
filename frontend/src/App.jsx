@@ -9,6 +9,7 @@ import Cooperative from './pages/Cooperative';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Contact from './pages/Contact';
+import Cart from './pages/Cart';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="cart" element={<Cart />} />
         </Route>
       </Routes>
     </Router>
