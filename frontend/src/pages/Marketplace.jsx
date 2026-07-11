@@ -1,31 +1,44 @@
-
-import React, { useState } from 'react';
-import { Search, Filter, ShoppingCart, Heart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, ShoppingCart, Heart, Loader2 } from 'lucide-react';
 import ProductCard from '../components/shared/ProductCard';
 
 const Marketplace = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
-    const [priceRange, setPriceRange] = useState(100);
+    const [priceRange, setPriceRange] = useState(1000);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const categories = ['All', 'Vegetables', 'Fruits', 'Grains', 'Herbs'];
+    const categories = ['All', 'Vegetables', 'Fruits', 'Exotic'];
 
-    // Mock Data
-    const products = Array.from({ length: 12 }).map((_, i) => ({
-        id: i,
-        name: ['Organic Tomatoes', 'Fresh Spinach', 'Red Apples', 'Basmati Rice', 'Carrots', 'Potatoes'][i % 6],
-        category: ['Vegetables', 'Vegetables', 'Fruits', 'Grains', 'Vegetables', 'Vegetables'][i % 6],
-        price: 40 + (i * 10),
-        unit: 'kg',
-        farmer: 'Green Valley Farm',
-        rating: 4.8,
-        image: `https://source.unsplash.com/random/400x300/?vegetable,fruit&sig=${i}`,
-        imageFallback: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1000'
-    }));
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setLoading(true);
+            try {
+                let url = 'http://localhost:5000/api/products';
+                const response = await fetch(url);
+                const data = await response.json();
+                setProducts(data);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProducts();
+    }, []);
 
-    const filteredProducts = products.filter(p =>
-        (selectedCategory === 'All' || p.category === selectedCategory) &&
-        p.price <= priceRange
-    );
+    const filteredProducts = products.filter(p => {
+        const matchesCategory = selectedCategory === 'All' || 
+            (p.category_id === 1 && selectedCategory === 'Fruits') ||
+            (p.category_id === 2 && selectedCategory === 'Vegetables') ||
+            (p.category_id === 3 && selectedCategory === 'Exotic');
+        
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesPrice = p.price <= priceRange;
+        
+        return matchesCategory && matchesSearch && matchesPrice;
+    });
 
     return (
         <div className="bg-gray-50 min-h-screen py-8">
@@ -39,6 +52,8 @@ const Marketplace = () => {
                         <input
                             type="text"
                             placeholder="Search products..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
                         <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
@@ -78,14 +93,15 @@ const Marketplace = () => {
                                 <input
                                     type="range"
                                     min="0"
-                                    max="200"
+                                    max="2000"
+                                    step="50"
                                     value={priceRange}
                                     onChange={(e) => setPriceRange(Number(e.target.value))}
                                     className="w-full accent-green-600"
                                 />
                                 <div className="flex justify-between text-xs text-gray-500 mt-1">
                                     <span>₹0</span>
-                                    <span>₹200+</span>
+                                    <span>₹2000+</span>
                                 </div>
                             </div>
                         </div>
@@ -93,11 +109,20 @@ const Marketplace = () => {
 
                     {/* Product Grid */}
                     <div className="lg:w-3/4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredProducts.map((product) => (
-                                <ProductCard key={product.id} product={product} />
-                            ))}
-                        </div>
+                        {loading ? (
+                            <div className="flex justify-center items-center py-20">
+                                <Loader2 className="animate-spin text-green-600" size={48} />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredProducts.map((product) => (
+                                    <ProductCard key={product.id} product={{
+                                        ...product,
+                                        image: product.image_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1000'
+                                    }} />
+                                ))}
+                            </div>
+                        )}
 
                         {filteredProducts.length === 0 && (
                             <div className="text-center py-20">

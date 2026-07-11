@@ -1,5 +1,7 @@
-import React from 'react';
-import { Package, Truck, CheckCircle, ChevronRight, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Package, Truck, CheckCircle, ChevronRight, Clock, Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const mockOrders = [
   {
@@ -24,23 +26,57 @@ const mockOrders = [
 ];
 
 const Orders = () => {
+  const { token, user } = useAuth();
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!token) {
+        navigate('/login');
+        return;
+    }
+
+    const fetchOrders = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/orders', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                setOrders(data);
+            }
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchOrders();
+  }, [token]);
+
   const getStatusColor = (status) => {
-    switch(status) {
-      case 'Delivered': return 'bg-green-100 text-green-700 border-green-200';
-      case 'In Transit': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'Processing': return 'bg-amber-100 text-amber-700 border-amber-200';
+    switch(status.toLowerCase()) {
+      case 'delivered': return 'bg-green-100 text-green-700 border-green-200';
+      case 'out_for_delivery': return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'packed':
+      case 'confirmed':
+      case 'placed': return 'bg-amber-100 text-amber-700 border-amber-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
   const getStatusIcon = (status) => {
-    switch(status) {
-      case 'Delivered': return <CheckCircle size={14} />;
-      case 'In Transit': return <Truck size={14} />;
-      case 'Processing': return <Clock size={14} />;
+    switch(status.toLowerCase()) {
+      case 'delivered': return <CheckCircle size={14} />;
+      case 'out_for_delivery': return <Truck size={14} />;
+      case 'placed':
+      case 'confirmed':
+      case 'packed': return <Clock size={14} />;
       default: return <Package size={14} />;
     }
   };
+ recreation:
 
   return (
     <div className="bg-gray-50 min-h-screen py-10 md:py-16 font-sans">
@@ -50,57 +86,59 @@ const Orders = () => {
         </h1>
 
         <div className="space-y-6">
-          {mockOrders.map((order) => (
-            <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-              {/* Order Header */}
-              <div className="bg-gray-50/50 px-6 py-4 flex flex-wrap justify-between items-center gap-4 border-b border-gray-100">
-                <div className="flex gap-8">
-                  <div>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Order Placed</p>
-                    <p className="text-sm font-bold text-gray-700">{order.date}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total</p>
-                    <p className="text-sm font-bold text-gray-700">₹{order.total}</p>
-                  </div>
-                  <div className="hidden sm:block">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Ship To</p>
-                    <p className="text-sm font-bold text-gray-700">Prajwal Patil</p>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Order # {order.id}</p>
-                  <div className={`px-2.5 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5 ${getStatusColor(order.status)}`}>
-                    {getStatusIcon(order.status)} {order.status}
-                  </div>
-                </div>
-              </div>
-
-              {/* Order Items */}
-              <div className="p-6">
-                <div className="space-y-6">
-                  {order.items.map((item, idx) => (
-                    <div key={idx} className="flex gap-6 items-center">
-                      <img src={item.image} alt={item.name} className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl bg-gray-50" />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm sm:text-base font-bold text-gray-900 truncate">{item.name}</h4>
-                        <p className="text-xs text-gray-500 mt-1 uppercase font-bold tracking-tight">Qty: {item.qty} × ₹{item.price}</p>
-                        <div className="mt-3 flex gap-3">
-                          <button className="text-xs font-bold text-green-600 hover:text-green-700 flex items-center gap-1 transition-colors">
-                            Buy it again <ChevronRight size={14} />
-                          </button>
-                        </div>
+          {loading ? (
+            <div className="flex justify-center py-20">
+                <Loader2 className="animate-spin text-green-600" size={48} />
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+                <p className="text-gray-500 font-medium">No orders found yet. Time to support some local farmers!</p>
+                <button onClick={() => navigate('/marketplace')} className="mt-4 text-green-600 font-bold hover:underline">Go to Marketplace</button>
+            </div>
+          ) : (
+            orders.map((order) => (
+                <div key={order.order_id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+                  {/* Order Header */}
+                  <div className="bg-gray-50/50 px-6 py-4 flex flex-wrap justify-between items-center gap-4 border-b border-gray-100">
+                    <div className="flex gap-8">
+                      <div>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Order Placed</p>
+                        <p className="text-sm font-bold text-gray-700">{new Date(order.created_at).toLocaleDateString()}</p>
                       </div>
-                      <div className="hidden sm:flex flex-col gap-2">
-                        <button className="w-32 py-2 text-xs font-bold bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm text-gray-700">Track Package</button>
-                        <button className="w-32 py-2 text-xs font-bold bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm text-gray-700">Get Help</button>
+                      <div>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total</p>
+                        <p className="text-sm font-bold text-gray-700">₹{order.total_price}</p>
+                      </div>
+                      <div className="hidden sm:block">
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Ship To</p>
+                        <p className="text-sm font-bold text-gray-700">{user?.name}</p>
                       </div>
                     </div>
-                  ))}
+                    <div className="flex flex-col items-end">
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Order # {order.order_id}</p>
+                      <div className={`px-2.5 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5 ${getStatusColor(order.status)}`}>
+                        {getStatusIcon(order.status)} {order.status}
+                      </div>
+                    </div>
+                  </div>
+    
+                  {/* Order Items */}
+                  <div className="p-6">
+                    <div className="space-y-6">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="flex gap-6 items-center">
+                          <img src={item.product?.image_url || 'https://via.placeholder.com/150'} alt={item.product?.name} className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl bg-gray-50" />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm sm:text-base font-bold text-gray-900 truncate">{item.product?.name}</h4>
+                            <p className="text-xs text-gray-500 mt-1 uppercase font-bold tracking-tight">Qty: {item.quantity} × ₹{item.price_at_purchase}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))
+          )}
         </div>
       </div>
     </div>

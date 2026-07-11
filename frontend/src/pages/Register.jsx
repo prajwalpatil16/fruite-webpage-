@@ -1,9 +1,29 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { User, Sprout, Map, Truck } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { User, Sprout, Map, Truck, Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
     const [role, setRole] = useState('customer'); // customer | farmer
+    const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', password: '', phone: '' });
+    const [error, setError] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
+    const { register, loading } = useAuth();
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccessMsg('');
+        const fullName = `${formData.firstName} ${formData.lastName}`;
+        const result = await register(fullName, formData.email, formData.password, formData.phone);
+        if (result.success) {
+            setSuccessMsg('Registration successful! Redirecting to login...');
+            setTimeout(() => navigate('/login'), 2000);
+        } else {
+            setError(result.message);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -45,26 +65,61 @@ const Register = () => {
                         </div>
                     </div>
 
-                    <form className="space-y-6">
+                    {error && (
+                        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+                            {error}
+                        </div>
+                    )}
+                    {successMsg && (
+                        <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded text-sm">
+                            {successMsg}
+                        </div>
+                    )}
+
+                    <form className="space-y-6" onSubmit={handleSubmit}>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">First name</label>
-                                <input type="text" name="first-name" id="first-name" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm" />
+                                <input 
+                                    type="text" 
+                                    required 
+                                    value={formData.firstName}
+                                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm" 
+                                />
                             </div>
                             <div>
                                 <label htmlFor="last-name" className="block text-sm font-medium text-gray-700">Last name</label>
-                                <input type="text" name="last-name" id="last-name" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm" />
+                                <input 
+                                    type="text" 
+                                    required 
+                                    value={formData.lastName}
+                                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm" 
+                                />
                             </div>
                         </div>
 
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
-                            <input type="email" name="email" id="email" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm" />
+                            <input 
+                                type="email" 
+                                required 
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm" 
+                            />
                         </div>
 
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                            <input type="password" name="password" id="password" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm" />
+                            <input 
+                                type="password" 
+                                required 
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm" 
+                            />
                         </div>
 
                         {role === 'farmer' && (
@@ -91,9 +146,16 @@ const Register = () => {
                         <div>
                             <button
                                 type="submit"
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                disabled={loading}
+                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Create Account
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="animate-spin mr-2" size={20} /> Creating...
+                                    </>
+                                ) : (
+                                    'Create Account'
+                                )}
                             </button>
                         </div>
                     </form>
