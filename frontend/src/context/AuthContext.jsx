@@ -91,10 +91,13 @@ export const AuthProvider = ({ children }) => {
 
   const refreshProfile = async () => {
     if (!token) return null;
-    const { ok, data } = await api('/api/auth/profile', { token });
+    const { ok, status, data } = await api('/api/auth/profile', { token });
     if (ok) {
       persist(data, token, localStorage.getItem('refresh_token'));
       return data;
+    }
+    if (status === 401 || status === 422) {
+      logout();
     }
     return null;
   };

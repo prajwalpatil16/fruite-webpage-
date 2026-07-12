@@ -8,13 +8,17 @@ const GUEST_KEY = 'fruitbasket_cart';
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
   const [cart, setCart] = useState([]);
   const mergedRef = useRef(false);
 
   const fetchServerCart = async (authToken) => {
-    const { ok, data } = await api('/api/orders/cart', { token: authToken });
-    if (ok) setCart(data);
+    const { ok, status, data } = await api('/api/orders/cart', { token: authToken });
+    if (ok) {
+      setCart(data);
+    } else if (status === 401 || status === 422) {
+      logout();
+    }
   };
 
   // Merge guest cart into server cart once per login session

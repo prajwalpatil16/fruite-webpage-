@@ -1,4 +1,5 @@
 import os
+# pyrefly: ignore [missing-import]
 from flask import Flask
 from flask_cors import CORS
 from config import Config
@@ -57,4 +58,5 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     debug = os.environ.get('FLASK_DEBUG', '0') == '1'
-    app.run(debug=debug, port=5000)
+    port = int(os.environ.get('PORT', 5001))
+    app.run(debug=debug, port=port)

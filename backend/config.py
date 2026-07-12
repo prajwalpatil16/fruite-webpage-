@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from urllib.parse import quote_plus
+# pyrefly: ignore [missing-import]
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,12 +16,12 @@ def _build_database_uri():
     """
     engine = (os.environ.get('DB_ENGINE') or 'mysql').strip().lower()
     if engine == 'sqlite':
-        db_path = _BACKEND_DIR / 'fruitbasket.db'
+        db_path = _BACKEND_DIR / 'instance' / 'fruitbasket.db'
         return f'sqlite:///{db_path}'
 
     host = os.environ.get('MYSQL_HOST', 'localhost').strip()
     user = os.environ.get('MYSQL_USER', 'root').strip()
-    password = os.environ.get('MYSQL_PASSWORD') or ''
+    password = os.environ.get('MYSQL_PASSWORD', 'Prajwal@16').strip()
     db_name = os.environ.get('MYSQL_DB', 'fruitbasket_db').strip()
     port = os.environ.get('MYSQL_PORT', '3306').strip()
 
