@@ -1,146 +1,225 @@
-import React, { useState } from 'react';
-import { User, MapPin, Bell, Shield, CreditCard, LogOut, ChevronRight, Camera } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { User, MapPin, LogOut, Loader2, Plus, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate, Link } from 'react-router-dom';
+import { api } from '../api';
 
 const Profile = () => {
-    const [activeTab, setActiveTab] = useState('personal');
+  const { user, token, logout, refreshProfile } = useAuth();
+  const navigate = useNavigate();
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const [newAddr, setNewAddr] = useState({ details: '', city: '', pincode: '', state: '', address_type: 'home' });
 
-    const tabs = [
-        { id: 'personal', label: 'Personal Info', icon: <User size={18} /> },
-        { id: 'addresses', label: 'Addresses', icon: <MapPin size={18} /> },
-        { id: 'payment', label: 'Payment Methods', icon: <CreditCard size={18} /> },
-        { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
-        { id: 'security', label: 'Security', icon: <Shield size={18} /> },
-    ];
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    setName(user?.name || '');
+    setPhone(user?.phone || '');
 
+    const load = async () => {
+      await refreshProfile();
+      const { ok, data } = await api('/api/addresses', { token });
+      if (ok) setAddresses(data);
+      setLoading(false);
+    };
+    load();
+  }, [token]);
+
+  const saveProfile = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setMessage('');
+    const { ok, data } = await api('/api/auth/profile', {
+      method: 'PUT',
+      token,
+      body: { name, phone },
+    });
+    setSaving(false);
+    if (ok) {
+      await refreshProfile();
+      setMessage('Profile updated.');
+    } else {
+      setMessage(data?.msg || 'Could not save.');
+    }
+  };
+
+  const addAddress = async (e) => {
+    e.preventDefault();
+    const { ok, data } = await api('/api/addresses', {
+      method: 'POST',
+      token,
+      body: { ...newAddr, is_default: addresses.length === 0 },
+    });
+    if (ok) {
+      setAddresses((prev) => [...prev, data]);
+      setNewAddr({ details: '', city: '', pincode: '', state: '', address_type: 'home' });
+    } else {
+      alert(data?.msg || 'Could not add address');
+    }
+  };
+
+  const deleteAddress = async (id) => {
+    const { ok } = await api(`/api/addresses/${id}`, { method: 'DELETE', token });
+    if (ok) setAddresses((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  if (loading) {
     return (
-        <div className="bg-gray-50 min-h-screen py-10 md:py-16 font-sans">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col md:flex-row gap-8">
-                    
-                    {/* Sidebar */}
-                    <div className="w-full md:w-1/4">
-                        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
-                            <div className="p-6 bg-gradient-to-br from-green-500 to-emerald-600 text-center relative">
-                                <div className="relative inline-block group cursor-pointer text-white">
-                                    <div className="w-24 h-24 rounded-full border-4 border-white/30 overflow-hidden mx-auto bg-white/20 flex items-center justify-center text-4xl font-bold">
-                                        P
-                                    </div>
-                                    <div className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-lg text-green-600">
-                                        <Camera size={14} />
-                                    </div>
-                                </div>
-                                <h2 className="mt-4 text-white font-bold text-lg">Prajwal Patil</h2>
-                                <p className="text-green-50 text-xs opacity-80">Premium Member since 2024</p>
-                            </div>
-
-                            <nav className="p-4 space-y-1">
-                                {tabs.map((tab) => (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                                            activeTab === tab.id 
-                                            ? 'bg-green-50 text-green-600' 
-                                            : 'text-gray-500 hover:bg-gray-50'
-                                        }`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            {tab.icon} {tab.label}
-                                        </div>
-                                        {activeTab === tab.id && <ChevronRight size={16} />}
-                                    </button>
-                                ))}
-                                <div className="pt-4 mt-4 border-t border-gray-100">
-                                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 transition-all">
-                                        <LogOut size={18} /> Log Out
-                                    </button>
-                                </div>
-                            </nav>
-                        </div>
-                    </div>
-
-                    {/* Main Content Area */}
-                    <div className="flex-1">
-                        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 min-h-[600px] p-6 md:p-10">
-                            {activeTab === 'personal' && (
-                                <div className="animate-in fade-in slide-in-from-bottom-2">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-8 pb-4 border-b border-gray-100">Personal Information</h3>
-                                    <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Full Name</label>
-                                            <input type="text" defaultValue="Prajwal Patil" className="w-full bg-gray-50 border-gray-200 rounded-2xl px-4 py-3 focus:ring-green-500 focus:border-green-500 font-medium text-gray-700 outline-none transition-all" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Email Address</label>
-                                            <input type="email" defaultValue="prajwal@fruite.com" className="w-full bg-gray-50 border-gray-200 rounded-2xl px-4 py-3 focus:ring-green-500 focus:border-green-500 font-medium text-gray-700 outline-none transition-all" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Phone Number</label>
-                                            <input type="tel" defaultValue="+91 9876543210" className="w-full bg-gray-50 border-gray-200 rounded-2xl px-4 py-3 focus:ring-green-500 focus:border-green-500 font-medium text-gray-700 outline-none transition-all" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Default Unit</label>
-                                            <select className="w-full bg-gray-50 border-gray-200 rounded-2xl px-4 py-3 focus:ring-green-500 focus:border-green-500 font-medium text-gray-700 outline-none transition-all">
-                                                <option>Kilograms (kg)</option>
-                                                <option>Grams (g)</option>
-                                                <option>Pieces (pc)</option>
-                                            </select>
-                                        </div>
-                                        <div className="md:col-span-2 pt-6">
-                                            <button className="bg-green-600 text-white font-bold px-8 py-3 rounded-2xl shadow-lg shadow-green-600/20 hover:scale-[1.02] transition-transform">
-                                                Save Changes
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            )}
-
-                            {activeTab === 'addresses' && (
-                                <div className="animate-in fade-in slide-in-from-bottom-2">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-8 pb-4 border-b border-gray-100">Saved Addresses</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="border-2 border-green-500 bg-green-50/30 p-5 rounded-2xl relative shadow-sm">
-                                            <div className="absolute top-4 right-4 bg-green-500 text-white text-[10px] uppercase font-black px-2 py-0.5 rounded">Default</div>
-                                            <div className="flex items-center gap-2 mb-3 text-green-600 font-bold">
-                                                <MapPin size={18} /> Home
-                                            </div>
-                                            <p className="text-sm text-gray-700 font-medium leading-relaxed">
-                                                42nd Block, Koramangala Layout,<br />
-                                                Near 80 Feet Road, Bengaluru,<br />
-                                                Karnataka - 560034
-                                            </p>
-                                            <button className="mt-4 text-xs font-bold text-green-600 hover:text-green-700">Edit Address</button>
-                                        </div>
-                                        <button className="border-2 border-dashed border-gray-200 p-5 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:border-green-400 hover:text-green-600 transition-all group">
-                                            <Plus size={32} className="mb-2 group-hover:scale-110 transition-transform" />
-                                            <span className="font-bold text-sm">Add New Address</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Placeholders for others */}
-                            {(activeTab === 'payment' || activeTab === 'notifications' || activeTab === 'security') && (
-                                <div className="flex flex-col items-center justify-center h-96 text-center opacity-40">
-                                    <MapPin size={48} className="mb-4 text-gray-300" />
-                                    <h3 className="text-lg font-bold text-gray-400">Section Under Development</h3>
-                                    <p className="text-sm text-gray-400 max-w-xs px-6">We're building more tools to give you full control over your experience.</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div className="min-h-[40vh] flex items-center justify-center">
+        <Loader2 className="animate-spin text-green-600" size={40} />
+      </div>
     );
-};
+  }
 
-// Internal Plus icon for the addresses tab
-const Plus = ({ size, className }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-  </svg>
-);
+  return (
+    <div className="min-h-screen bg-gray-50 py-6 font-sans sm:py-10 md:py-16">
+      <div className="mx-auto max-w-3xl space-y-6 px-4 sm:space-y-8 sm:px-6 lg:px-8">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="flex items-center gap-2 text-2xl font-extrabold text-gray-900 sm:gap-3 sm:text-3xl">
+              <User className="text-green-600" /> Your profile
+            </h1>
+            <p className="mt-2 text-sm text-gray-500">
+              This is how FruitBasket knows you — keep it current for deliveries.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="tap-target inline-flex shrink-0 items-center gap-2 text-sm font-bold text-red-600"
+          >
+            <LogOut size={16} /> <span className="hidden sm:inline">Sign out</span>
+          </button>
+        </div>
+
+        <form onSubmit={saveProfile} className="space-y-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
+          <div>
+            <label className="text-xs font-bold uppercase text-gray-400">Full name</label>
+            <input
+              autoComplete="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="tap-target mt-2 w-full rounded-2xl bg-gray-50 px-4 font-medium outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold uppercase text-gray-400">Email</label>
+            <input value={user?.email || ''} disabled className="tap-target mt-2 w-full rounded-2xl bg-gray-100 px-4 font-medium text-gray-500" />
+          </div>
+          <div>
+            <label className="text-xs font-bold uppercase text-gray-400">Phone</label>
+            <input
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="tap-target mt-2 w-full rounded-2xl bg-gray-50 px-4 font-medium outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div className="text-sm text-gray-500">
+            Role: <strong className="capitalize text-gray-800">{user?.role}</strong>
+            {user?.role === 'farmer' && (
+              <span className="ml-2">· Farm status: <strong className="capitalize">{user.farmer_status}</strong></span>
+            )}
+          </div>
+          {message && <p className="text-sm font-medium text-green-700">{message}</p>}
+          <button type="submit" disabled={saving} className="tap-target w-full rounded-2xl bg-green-600 px-6 text-sm font-bold text-white disabled:opacity-50 sm:w-auto">
+            {saving ? 'Saving…' : 'Save changes'}
+          </button>
+        </form>
+
+        <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
+          <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-900">
+            <MapPin className="text-green-600" size={20} /> Delivery addresses
+          </h2>
+
+          <div className="mb-8 space-y-3">
+            {addresses.length === 0 && (
+              <p className="text-sm text-gray-500">No addresses yet. Add one before your next checkout.</p>
+            )}
+            {addresses.map((a) => (
+              <div key={a.id} className="flex justify-between gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                <div className="min-w-0">
+                  <p className="text-sm font-bold capitalize text-gray-900">{a.address_type}{a.is_default ? ' · Default' : ''}</p>
+                  <p className="mt-1 text-sm text-gray-600">{a.details}</p>
+                  <p className="mt-1 text-xs text-gray-500">{a.city}, {a.state} — {a.pincode}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => deleteAddress(a.id)}
+                  className="tap-target flex shrink-0 items-center justify-center text-red-500 hover:text-red-700"
+                  aria-label="Delete address"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <form onSubmit={addAddress} className="space-y-4 border-t border-gray-100 pt-6">
+            <p className="flex items-center gap-2 text-sm font-bold text-gray-800"><Plus size={16} /> Add address</p>
+            <input
+              required
+              autoComplete="street-address"
+              placeholder="Street address"
+              value={newAddr.details}
+              onChange={(e) => setNewAddr({ ...newAddr, details: e.target.value })}
+              className="tap-target w-full rounded-2xl bg-gray-50 px-3 outline-none focus:ring-2 focus:ring-green-500"
+            />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <input
+                required
+                autoComplete="address-level2"
+                placeholder="City"
+                value={newAddr.city}
+                onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })}
+                className="tap-target rounded-2xl bg-gray-50 px-3 outline-none focus:ring-2 focus:ring-green-500"
+              />
+              <input
+                required
+                inputMode="numeric"
+                autoComplete="postal-code"
+                placeholder="PIN"
+                value={newAddr.pincode}
+                onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })}
+                className="tap-target rounded-2xl bg-gray-50 px-3 outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+            <input
+              required
+              autoComplete="address-level1"
+              placeholder="State"
+              value={newAddr.state}
+              onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })}
+              className="tap-target w-full rounded-2xl bg-gray-50 px-3 outline-none focus:ring-2 focus:ring-green-500"
+            />
+            <button type="submit" className="tap-target inline-flex items-center font-bold text-green-700">
+              Save address
+            </button>
+          </form>
+        </div>
+
+        {user?.role === 'farmer' && user?.farmer_status === 'approved' && (
+          <Link to="/farmer" className="tap-target flex items-center justify-center rounded-2xl bg-green-600 text-sm font-bold text-white">
+            Open My Farm Dashboard
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default Profile;

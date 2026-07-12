@@ -1,12 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "DM Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --color-soil: #3d2f24;
+  --color-leaf: #1f6b3a;
+  --color-mist: #eef5ef;
 }
 
 @layer base {
   body {
     @apply font-sans antialiased text-gray-800 bg-gray-50;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  /* Prevent accidental horizontal scroll on narrow phones */
+  html,
+  body,
+  #root {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Minimum comfortable tap target */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
   }
 }

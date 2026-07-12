@@ -1,184 +1,92 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Clock, MessageSquare } from 'lucide-react';
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', topic: 'order', message: '' });
 
-  const handleSubmit = (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    // Simulate real form submission
-    setTimeout(() => {
-      setIsSubmitted(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setIsSubmitted(false), 5000);
-    }, 800);
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setSent(true);
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8 md:py-16 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header Section */}
-        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4 sm:mb-6 tracking-tight">
-            Our farmers are <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">always listening</span>
-          </h1>
-          <p className="text-base md:text-lg text-gray-500 leading-relaxed font-medium">
-            Have a question about your fresh delivery or want to know more about our growers? Our community support team is here to help you every step of the way.
+    <div className="min-h-screen bg-gray-50 py-8 font-sans sm:py-12">
+      <div className="mx-auto grid max-w-5xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-12 lg:px-8">
+        <div>
+          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-green-700">Help & support</p>
+          <h1 className="mb-4 text-3xl font-extrabold text-gray-900 sm:text-4xl">We’re here for the practical stuff</h1>
+          <p className="mb-8 leading-relaxed text-gray-600">
+            Wrong item, delayed farm pack, account questions, or farm application follow-ups —
+            tell us what happened. We’ll point you to the right next step.
+          </p>
+          <ul className="space-y-4 text-sm text-gray-700">
+            <li className="flex gap-3"><Clock className="shrink-0 text-green-600" size={18} /> We aim to reply within 1–2 business days.</li>
+            <li className="flex gap-3">
+              <Mail className="shrink-0 text-green-600" size={18} />
+              <a href="mailto:support@fruitbasket.com" className="tap-target inline-flex items-center break-all hover:text-green-700">
+                support@fruitbasket.com
+              </a>
+            </li>
+            <li className="flex gap-3"><MessageSquare className="shrink-0 text-green-600" size={18} /> Order issues: include your FB- order number.</li>
+          </ul>
+          <p className="mt-8 rounded-2xl border border-amber-100 bg-amber-50 p-4 text-xs text-amber-800">
+            Contact form currently stores messages in the browser session only (no ticket backend yet).
+            Wire SMTP or a helpdesk before treating this as production support.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 bg-white rounded-3xl shadow-xl overflow-hidden">
-          
-          {/* Contact Information Sidebar */}
-          <div className="bg-gradient-to-br from-green-600 to-emerald-800 p-10 text-white lg:col-span-1 rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none flex flex-col justify-between">
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
-              <p className="text-green-100 mb-10 leading-relaxed">
-                Fill up the form and our Team will get back to you within 24 hours.
-              </p>
-
-              <div className="space-y-8">
-                <div className="flex items-start gap-4">
-                  <Phone className="text-green-300 mt-1 flex-shrink-0" size={24} />
-                  <div>
-                    <p className="font-semibold text-lg">+91 98765 43210</p>
-                    <p className="text-green-200 text-sm mt-1">Mon-Sat from 8am to 8pm.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <Mail className="text-green-300 mt-1 flex-shrink-0" size={24} />
-                  <div>
-                    <p className="font-semibold text-lg">hello@fruitbasket.in</p>
-                    <p className="text-green-200 text-sm mt-1">Drop us a line anytime!</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <MapPin className="text-green-300 mt-1 flex-shrink-0" size={24} />
-                  <div>
-                    <p className="font-semibold text-lg">FruitBasket HQ</p>
-                    <p className="text-green-200 text-sm mt-1">123 Green Avenue, Startup Tech Park,<br/>Bengaluru, Karnataka 560001</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-12 flex gap-4">
-              {/* Optional Social Icons or Branding Elements could go here */}
-              <div className="h-10 w-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 cursor-pointer transition-colors backdrop-blur-sm">
-                <span className="font-bold text-white">FB</span>
-              </div>
-              <div className="h-10 w-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 cursor-pointer transition-colors backdrop-blur-sm">
-                <span className="font-bold text-white">IG</span>
-              </div>
-              <div className="h-10 w-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 cursor-pointer transition-colors backdrop-blur-sm">
-                <span className="font-bold text-white">X</span>
-              </div>
-            </div>
+        {sent ? (
+          <div className="rounded-3xl border border-gray-100 bg-white p-8 text-center shadow-sm sm:p-10">
+            <h2 className="mb-3 text-2xl font-bold text-gray-900">Message noted</h2>
+            <p className="text-gray-600">
+              Thanks, {form.name || 'friend'}. We’ve recorded your note locally for now.
+              For urgent order issues, email support@fruitbasket.com with your order ID.
+            </p>
           </div>
-
-          {/* Contact Form */}
-          <div className="p-10 lg:col-span-2">
-            {isSubmitted ? (
-              <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-20 animate-in fade-in zoom-in duration-500">
-                <div className="h-20 w-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Send className="text-green-600" size={40} />
-                </div>
-                <h3 className="text-3xl font-bold text-gray-900">Message Sent!</h3>
-                <p className="text-gray-600 max-w-sm mx-auto">
-                  Thank you for reaching out to FruitBasket. We will get back to you shortly.
-                </p>
-                <button 
-                  onClick={() => setIsSubmitted(false)}
-                  className="mt-6 text-green-600 font-medium hover:text-green-700 underline"
-                >
-                  Send another message
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto h-full flex flex-col justify-center">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors outline-none"
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors outline-none"
-                      placeholder="john@example.com"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    required
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors outline-none"
-                    placeholder="How can we help you?"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows="4"
-                    required
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors outline-none resize-none"
-                    placeholder="Tell us everything..."
-                  ></textarea>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    className="w-full sm:w-auto px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg shadow-green-600/30 hover:shadow-green-600/40 transition-all flex items-center justify-center gap-2 transform active:scale-[0.98]"
-                  >
-                    Send Message <Send size={18} />
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-
-        </div>
+        ) : (
+          <form onSubmit={onSubmit} className="space-y-4 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
+            <input
+              required
+              autoComplete="name"
+              placeholder="Your name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="tap-target w-full rounded-2xl bg-gray-50 px-4 text-base"
+            />
+            <input
+              required
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className="tap-target w-full rounded-2xl bg-gray-50 px-4 text-base"
+            />
+            <select
+              value={form.topic}
+              onChange={(e) => setForm({ ...form, topic: e.target.value })}
+              className="tap-target w-full rounded-2xl bg-gray-50 px-4 text-base"
+            >
+              <option value="order">Order / delivery</option>
+              <option value="farm">Farm application</option>
+              <option value="account">Account</option>
+              <option value="other">Something else</option>
+            </select>
+            <textarea
+              required
+              rows={5}
+              placeholder="What do you need help with?"
+              value={form.message}
+              onChange={(e) => setForm({ ...form, message: e.target.value })}
+              className="w-full rounded-2xl bg-gray-50 p-4 text-base"
+            />
+            <button type="submit" className="tap-target w-full rounded-2xl bg-green-600 text-sm font-bold text-white">
+              Send message
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

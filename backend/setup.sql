@@ -1,20 +1,47 @@
--- Create Database
-CREATE DATABASE IF NOT EXISTS fruite_db;
-USE fruite_db;
+-- FruitBasket schema (mirrors models.py — source of truth is models.py)
+-- Fresh MySQL install: run this, then python seed.py
+-- Incremental: python migrate.py
 
--- Users Table
+CREATE DATABASE IF NOT EXISTS fruitbasket_db;
+USE fruitbasket_db;
+
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(120) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NULL,
+    google_id VARCHAR(64) UNIQUE NULL,
     phone VARCHAR(15),
     profile_photo VARCHAR(255),
     role VARCHAR(20) DEFAULT 'customer',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Addresses Table
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token_hash VARCHAR(64) UNIQUE NOT NULL,
+    expires_at DATETIME NOT NULL,
+    revoked BOOLEAN DEFAULT FALSE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS farmer_profiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    farm_name VARCHAR(150) NOT NULL,
+    description TEXT,
+    location VARCHAR(150) NOT NULL,
+    photo_url VARCHAR(255),
+    status VARCHAR(20) DEFAULT 'pending',
+    is_new_seller BOOLEAN DEFAULT TRUE,
+    rejection_reason TEXT,
+    reviewed_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS addresses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -23,32 +50,42 @@ CREATE TABLE IF NOT EXISTS addresses (
     pincode VARCHAR(10) NOT NULL,
     city VARCHAR(50) NOT NULL,
     state VARCHAR(50) NOT NULL,
+    is_default BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Categories Table
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL,
     description TEXT
 );
 
--- Products Table
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
     price FLOAT NOT NULL,
+    unit VARCHAR(30) DEFAULT 'Kg',
     category_id INT NOT NULL,
+    farmer_id INT NOT NULL,
     stock_quantity INT DEFAULT 0,
     image_url VARCHAR(255),
     tags VARCHAR(255),
     is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES categories(id)
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    FOREIGN KEY (farmer_id) REFERENCES farmer_profiles(id)
 );
 
--- Cart Table
+CREATE TABLE IF NOT EXISTS product_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    url TEXT NOT NULL,
+    sort_order INT DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS carts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -58,12 +95,12 @@ CREATE TABLE IF NOT EXISTS carts (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
--- Orders Table
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     total_price FLOAT NOT NULL,
-    status VARCHAR(20) DEFAULT 'placed',
+    delivery_fee FLOAT DEFAULT 0,
+    status VARCHAR(30) DEFAULT 'placed',
     address_id INT NOT NULL,
     payment_method VARCHAR(20) DEFAULT 'cod',
     payment_status VARCHAR(20) DEFAULT 'pending',
@@ -72,26 +109,144 @@ CREATE TABLE IF NOT EXISTS orders (
     FOREIGN KEY (address_id) REFERENCES addresses(id)
 );
 
--- Order Items Table
+-- Per-farmer sub-orders (ER: order_farmer_groups)
+CREATE TABLE IF NOT EXISTS farmer_orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    farmer_id INT NOT NULL,
+    subtotal FLOAT NOT NULL,
+    status VARCHAR(30) DEFAULT 'placed',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (farmer_id) REFERENCES farmer_profiles(id)
+);
+
 CREATE TABLE IF NOT EXISTS order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
+    farmer_order_id INT NOT NULL,
+    farmer_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
     price_at_purchase FLOAT NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (farmer_order_id) REFERENCES farmer_orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (farmer_id) REFERENCES farmer_profiles(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
--- Insert Sample Data
-INSERT IGNORE INTO categories (id, name, description, image_url) VALUES
-(1, 'Fruits', 'Fresh seasonal and exotic fruits', 'https://images.unsplash.com/photo-1619566633748-5d8de0d59248?auto=format&fit=crop&q=80&w=800'),
-(2, 'Vegetables', 'Organic and farm-fresh vegetables', 'https://images.unsplash.com/photo-1597362868423-1b14ea3396a6?auto=format&fit=crop&q=80&w=800'),
-(3, 'Exotics', 'International produce and rare finds', 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&q=80&w=800'),
-(4, 'Organic', 'Certified chemical-free naturally grown', 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800');
+CREATE TABLE IF NOT EXISTS reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    order_id INT NULL,
+    rating INT NOT NULL,
+    body TEXT,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
 
-INSERT IGNORE INTO products (name, description, price, unit, stock_quantity, category_id, image_url, rating, farmer) VALUES
-('Alfonso Mangoes', 'Sweet and creamy premium Alfonso mangoes from Ratnagiri.', 600.00, 'Dozen', 50, 1, 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&q=80&w=800', 4.9, 'Prajwal Patil'),
-('Fresh Strawberries', 'Hand-picked juicy strawberries from Mahabaleshwar.', 150.00, 'Pack', 30, 1, 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&q=80&w=800', 4.7, 'Suresh Kumar'),
-('Broccoli', 'Fresh organic broccoli rich in nutrients.', 80.00, 'Kg', 40, 2, 'https://images.unsplash.com/photo-1459411621453-7b03977f4952?auto=format&fit=crop&q=80&w=2000', 4.5, 'Meera Bai'),
-('Avocado', 'Premium Haas avocados for salads and toast.', 250.00, 'Piece', 20, 3, 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&q=80&w=800', 4.8, 'Global Imports');
+CREATE TABLE IF NOT EXISTS review_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    review_id INT NOT NULL,
+    url TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS seller_flags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    farmer_id INT NOT NULL,
+    reason TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'open',
+    admin_notes TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    resolved_at DATETIME NULL,
+    FOREIGN KEY (farmer_id) REFERENCES farmer_profiles(id)
+);
+
+CREATE TABLE IF NOT EXISTS contact_submissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(120) NOT NULL,
+    topic VARCHAR(40) DEFAULT 'other',
+    message TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(120) UNIQUE NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS blog_posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    slug VARCHAR(220) UNIQUE NOT NULL,
+    category VARCHAR(80) NOT NULL,
+    excerpt TEXT,
+    body TEXT NOT NULL,
+    author_name VARCHAR(100) DEFAULT 'FruitBasket',
+    farmer_id INT NULL,
+    related_product_ids VARCHAR(255) NULL,
+    is_published BOOLEAN DEFAULT FALSE,
+    published_at DATETIME NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (farmer_id) REFERENCES farmer_profiles(id)
+);
+
+CREATE TABLE IF NOT EXISTS help_articles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    slug VARCHAR(220) UNIQUE NOT NULL,
+    category VARCHAR(80) NOT NULL,
+    body TEXT NOT NULL,
+    is_published BOOLEAN DEFAULT FALSE,
+    sort_order INT DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT IGNORE INTO categories (id, name, description) VALUES
+(1, 'Fruits', 'Seasonal and everyday fruits, picked ripe'),
+(2, 'Vegetables', 'Farm-fresh vegetables for daily cooking'),
+(3, 'Exotics', 'Specialty and less-common produce'),
+(4, 'Organic', 'Grown with fewer chemicals and clearer practices');
+
+CREATE TABLE IF NOT EXISTS auth_otps (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    channel VARCHAR(10) NOT NULL,
+    destination VARCHAR(120) NOT NULL,
+    code_hash VARCHAR(64) NOT NULL,
+    purpose VARCHAR(20) DEFAULT 'register',
+    attempts INT DEFAULT 0,
+    verified BOOLEAN DEFAULT FALSE,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS return_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    farmer_order_id INT NOT NULL,
+    order_item_id INT NOT NULL,
+    user_id INT NOT NULL,
+    farmer_id INT NOT NULL,
+    quantity INT NOT NULL,
+    reason TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'requested',
+    stock_restored BOOLEAN DEFAULT FALSE,
+    admin_notes TEXT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    resolved_at DATETIME NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (farmer_order_id) REFERENCES farmer_orders(id),
+    FOREIGN KEY (order_item_id) REFERENCES order_items(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (farmer_id) REFERENCES farmer_profiles(id)
+);

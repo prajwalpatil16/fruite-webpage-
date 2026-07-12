@@ -1,145 +1,135 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Sprout, Loader2 } from 'lucide-react';
+import { Loader2, Sprout } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import GoogleSignInButton from '../components/auth/GoogleSignInButton';
+import AuthShell from '../components/auth/AuthShell';
+import PasswordInput from '../components/auth/PasswordInput';
+
+const field =
+  'w-full rounded-xl border border-[#3d2f24]/12 bg-[#f7f3eb]/50 px-3.5 py-2.5 text-sm text-[#3d2f24] outline-none placeholder:text-[#9a8f84] focus:border-[#1f6b3a] focus:bg-white focus:ring-2 focus:ring-[#1f6b3a]/20';
 
 const Login = () => {
-    const [role, setRole] = useState('customer'); // customer | farmer
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const [error, setError] = useState('');
-    const { login, loading } = useAuth();
-    const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
+  const { login, loginWithGoogle, loading } = useAuth();
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        const result = await login(formData.email, formData.password);
-        if (result.success) {
-            navigate('/');
-        } else {
-            setError(result.message);
-        }
-    };
+  const routeAfterAuth = (u) => {
+    if (u?.role === 'admin') navigate('/admin');
+    else if (u?.role === 'farmer') navigate('/farmer');
+    else navigate('/');
+  };
 
-    return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                    Sign in to your account
-                </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
-                    Or{' '}
-                    <Link to="/register" className="font-medium text-green-600 hover:text-green-500">
-                        create a new account
-                    </Link>
-                </p>
-            </div>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setInfo('');
+    const result = await login(formData.email.trim(), formData.password);
+    if (result.success) routeAfterAuth(result.user);
+    else setError(result.message || 'Could not sign in');
+  };
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+  const onGoogleSuccess = useCallback(async (data) => {
+    setError('');
+    const result = await loginWithGoogle(data);
+    if (result.linked) setInfo(result.message || 'Google linked to your existing account.');
+    routeAfterAuth(result.user);
+  }, [loginWithGoogle]);
 
-                    {/* Role Toggle */}
-                    <div className="flex rounded-md bg-gray-100 p-1 mb-6">
-                        <button
-                            onClick={() => setRole('customer')}
-                            className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-md transition-all ${role === 'customer' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'
-                                }`}
-                        >
-                            <User size={16} className="mr-2" /> Customer
-                        </button>
-                        <button
-                            onClick={() => setRole('farmer')}
-                            className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-md transition-all ${role === 'farmer' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'
-                                }`}
-                        >
-                            <Sprout size={16} className="mr-2" /> Farmer
-                        </button>
-                    </div>
-
-                    {error && (
-                        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-                            {error}
-                        </div>
-                    )}
-
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                Email address
-                            </label>
-                            <div className="mt-1">
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-                            <div className="mt-1">
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    required
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <input
-                                    id="remember-me"
-                                    name="remember-me"
-                                    type="checkbox"
-                                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                                />
-                                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                                    Remember me
-                                </label>
-                            </div>
-
-                            <div className="text-sm">
-                                <a href="#" className="font-medium text-green-600 hover:text-green-500">
-                                    Forgot your password?
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="animate-spin mr-2" size={20} /> Loading...
-                                    </>
-                                ) : (
-                                    `Sign in as ${role === 'customer' ? 'Customer' : 'Farmer'}`
-                                )}
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
+  return (
+    <AuthShell
+      headline="Welcome back"
+      subhead={
+        <>
+          New here?{' '}
+          <Link to="/register" className="font-semibold text-[#1f6b3a] hover:underline">
+            Create an account
+          </Link>
+        </>
+      }
+      asideQuote="Fresh produce, real farms, no middlemen."
+    >
+      {error && (
+        <div className="mb-3 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-700">
+          {error}
         </div>
-    );
+      )}
+      {info && (
+        <div className="mb-3 rounded-xl border border-green-100 bg-green-50 px-3 py-2 text-xs text-green-800">
+          {info}
+        </div>
+      )}
+
+      <GoogleSignInButton
+        text="signin_with"
+        onSuccess={onGoogleSuccess}
+        onError={(msg) => setError(msg)}
+      />
+
+      <div className="my-3 flex items-center gap-2">
+        <div className="h-px flex-1 bg-[#3d2f24]/10" />
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[#9a8f84]">or</span>
+        <div className="h-px flex-1 bg-[#3d2f24]/10" />
+      </div>
+
+      <form className="space-y-3" onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="login-email" className="mb-1 block text-xs font-semibold text-[#3d2f24]">
+            Email
+          </label>
+          <input
+            id="login-email"
+            name="fruitbasket-email"
+            type="email"
+            autoComplete="username"
+            required
+            placeholder="you@example.com"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className={field}
+          />
+        </div>
+
+        <div>
+          <div className="mb-1 flex items-center justify-between">
+            <label htmlFor="login-password" className="text-xs font-semibold text-[#3d2f24]">
+              Password
+            </label>
+            <Link to="/help/forgot-password" className="text-[11px] font-semibold text-[#1f6b3a] hover:underline">
+              Forgot?
+            </Link>
+          </div>
+          <PasswordInput
+            id="login-password"
+            name="fruitbasket-password"
+            autoComplete="current-password"
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            placeholder="Your password"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex w-full items-center justify-center rounded-xl bg-[#1f6b3a] py-2.5 text-sm font-bold text-white hover:bg-[#185530] disabled:opacity-50"
+        >
+          {loading ? <Loader2 className="animate-spin" size={18} /> : 'Sign in'}
+        </button>
+      </form>
+
+      <div className="mt-3 rounded-xl border border-[#1f6b3a]/15 bg-[#eef5ef] px-3 py-2 text-center">
+        <p className="flex items-center justify-center gap-1 text-xs font-semibold text-[#1f6b3a]">
+          <Sprout size={14} /> Selling?{' '}
+          <Link to="/sell" className="underline underline-offset-2">
+            Apply to sell
+          </Link>
+        </p>
+      </div>
+    </AuthShell>
+  );
 };
 
 export default Login;

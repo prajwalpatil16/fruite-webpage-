@@ -1,0 +1,17 @@
+# Root
+.env
+**/.env
+!.env.example
+**/__pycache__/
+*.pyc
+.Python
+.venv/
+venv/
+node_modules/
+frontend/dist/
+.DS_Store
+*.log
+.idea/
+.vscode/
+backend/*.db
+backend/.venv/

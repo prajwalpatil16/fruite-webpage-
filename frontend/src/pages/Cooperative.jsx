@@ -1,73 +1,67 @@
 import React from 'react';
-import { Users, TrendingUp, Heart, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
+/**
+ * Cooperative / About page — Part A refined copy hardcoded.
+ * Reasoning: marketing pages change infrequently; a full page-CMS adds
+ * complexity without much benefit for v1. Journal/Help are CMS-backed instead.
+ */
 const Cooperative = () => {
-    return (
-        <div className="bg-white min-h-screen">
-            {/* Hero */}
-            <section className="bg-green-900 text-white py-20 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-                    <h1 className="text-4xl md:text-6xl font-bold mb-6">The FruitBasket Cooperative</h1>
-                    <p className="text-xl text-green-100 max-w-3xl mx-auto">
-                        A community-owned platform where farmers get fair value and customers get real food.
-                        Together, we are rewriting the rules of the food system.
-                    </p>
-                </div>
-            </section>
-
-            {/* Mission */}
-            <section className="py-16">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                        <div>
-                            <h2 className="text-3xl font-bold text-gray-900 mb-6">Why We Exist</h2>
-                            <p className="text-gray-600 mb-4 text-lg">
-                                Traditional supply chains are broken. Farmers get pennies for their produce while customers pay a premium for stale food that has traveled continets.
-                            </p>
-                            <p className="text-gray-600 mb-6 text-lg">
-                                FruitBasket eliminates the middlemen. We provide the technology and logistics to connect farmers directly with consumers.
-                            </p>
-                            <div className="pl-6 border-l-4 border-green-500 italic text-gray-700 text-xl font-medium">
-                                "It's not just a marketplace; it's a movement to reclaim our food sovereignty."
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <img src="https://images.unsplash.com/photo-1595814433015-e6f5ce69614e?auto=format&fit=crop&q=80&w=400" className="rounded-lg shadow-lg mt-8" alt="Farmer" />
-                            <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=400" className="rounded-lg shadow-lg" alt="Community" />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Benefits Grid */}
-            <section className="py-16 bg-gray-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl font-bold text-gray-900">Shared Value for Everyone</h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                            <TrendingUp className="text-green-600 mb-4" size={40} />
-                            <h3 className="text-xl font-bold mb-3">Fair Prices</h3>
-                            <p className="text-gray-600">Farmers set their own prices. We take a minimal flat fee for operations. No hidden commissions.</p>
-                        </div>
-                        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                            <ShieldCheck className="text-blue-600 mb-4" size={40} />
-                            <h3 className="text-xl font-bold mb-3">Verified Quality</h3>
-                            <p className="text-gray-600">Every farmer is vetted. We encourage organic and natural farming practices for healthier produce.</p>
-                        </div>
-                        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                            <Users className="text-purple-600 mb-4" size={40} />
-                            <h3 className="text-xl font-bold mb-3">Community First</h3>
-                            <p className="text-gray-600">Profits are reinvested into the community to build cold storage and better logistics for farmers.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  return (
+    <div className="bg-gray-50 min-h-screen font-sans">
+      <section className="bg-gradient-to-br from-emerald-900 to-green-700 text-white py-14 sm:py-20 px-4">
+        <div className="max-w-3xl mx-auto">
+          <p className="text-xs font-bold uppercase tracking-widest text-green-200 mb-3">About FruitBasket</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-5 leading-tight">
+            We&apos;re not a grocery store. We&apos;re a cooperative.
+          </h1>
+          <p className="text-green-100 text-base sm:text-lg leading-relaxed">
+            FruitBasket exists because the distance between farm and table got too long — too many hands,
+            too many markups, too much flavor lost along the way.
+          </p>
         </div>
-    );
+      </section>
+
+      <section className="max-w-2xl mx-auto px-4 py-12 sm:py-16 space-y-8 text-[1.05rem] leading-relaxed text-gray-700">
+        <p>
+          We built a platform where farmers set their own prices, tell their own stories, and keep the value they create.
+          Where customers know exactly whose land their food came from. No corporate produce buyers.
+          No unnamed &quot;supplier #4471.&quot; Just farmers and the people who eat what they grow.
+        </p>
+        <p className="text-gray-900 font-medium">
+          When you order from FruitBasket, more of what you pay reaches the person who actually did the work —
+          sun, soil, and all.
+        </p>
+
+        <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 space-y-4">
+          <h2 className="text-xl font-extrabold text-gray-900">How an order works</h2>
+          <p className="text-gray-600 text-base">
+            Your cart can mix farms. At checkout it&apos;s still one purchase for you — behind the scenes,
+            each farm packs only their share, with their own fulfillment status.
+          </p>
+          <Link to="/help/how-does-delivery-work" className="inline-block text-green-700 font-bold text-sm hover:underline">
+            Read more in Help Center →
+          </Link>
+        </div>
+
+        <div className="bg-amber-50 border border-amber-100 rounded-3xl p-5 sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-wider text-amber-800 mb-2">Still open</p>
+          <p className="text-sm text-amber-900 leading-relaxed">
+            Exact commission / fee terms for farmers aren&apos;t published yet — confirm those before we add them to Help Center.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+          <Link to="/marketplace" className="tap-target flex items-center justify-center rounded-2xl bg-green-600 px-6 text-sm font-bold text-white">
+            Shop farms
+          </Link>
+          <Link to="/sell" className="tap-target flex items-center justify-center rounded-2xl border border-gray-200 bg-white px-6 text-sm font-bold text-gray-800">
+            Join as a farm
+          </Link>
+        </div>
+      </section>
+    </div>
+  );
 };
 
 export default Cooperative;

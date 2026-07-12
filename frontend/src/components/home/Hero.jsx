@@ -3,36 +3,43 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 const Hero = () => {
-    return (
-        <div className="relative rounded-xl overflow-hidden shadow-md h-[400px] md:h-[500px] bg-gray-900 group mx-4 sm:mx-0 mt-4 sm:mt-0">
-            <img
-                src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&q=80&w=2070"
-                className="w-full h-full object-cover opacity-60"
-                alt="Hero"
-            />
-            <div className="absolute inset-0 flex items-center justify-center text-center p-6 md:p-16">
-                <div className="max-w-3xl text-white">
-                    <span className="inline-block py-1 px-3 rounded-full bg-white/20 border border-white/30 text-white text-xs sm:text-sm font-medium mb-4 sm:mb-6 backdrop-blur-sm">
-                        From the farmer’s soil to the customer’s soul
-                    </span>
-                    <h1 className="text-3xl md:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight tracking-tight px-2 sm:px-0">
-                        Food tastes better when <br className="hidden md:block" /> you know who grew it.
-                    </h1>
-                    <p className="text-lg md:text-xl text-gray-200 mb-10 font-light max-w-2xl mx-auto">
-                        No middlemen. No hidden margins. Just fresh produce, fair prices, and direct relationships with local farmers.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link to="/marketplace" className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full font-bold transition-all inline-flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
-                            Buy from Farmers <ArrowRight size={20} />
-                        </Link>
-                        <Link to="/register" className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white px-8 py-4 rounded-full font-bold transition-all inline-flex items-center justify-center">
-                            Become a Partner
-                        </Link>
-                    </div>
-                </div>
-            </div>
+  return (
+    <section className="relative isolate min-h-[70vh] overflow-hidden bg-gray-900 md:min-h-[78vh]">
+      <img
+        src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&q=80&w=2070"
+        className="absolute inset-0 h-full w-full object-cover"
+        alt="Fresh vegetables from local farms"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/45 to-black/65" />
+
+      <div className="relative mx-auto flex min-h-[70vh] max-w-4xl flex-col items-center justify-center px-5 py-20 text-center text-white md:min-h-[78vh] md:px-8">
+        <p className="mb-5 text-sm font-medium text-green-100/90">
+          From the farmer&apos;s soil to the customer&apos;s table
+        </p>
+        <h1 className="mb-5 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+          Food tastes better when{' '}
+          <span className="block">you know who grew it.</span>
+        </h1>
+        <p className="mb-9 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+          No middlemen. No hidden margins. Just fresh produce, fair prices, and direct relationships with local farmers.
+        </p>
+        <div className="flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:w-auto sm:flex-row sm:justify-center">
+          <Link
+            to="/marketplace"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-green-600 px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-black/20 transition hover:bg-green-500"
+          >
+            Buy from Farmers <ArrowRight size={18} />
+          </Link>
+          <Link
+            to="/sell"
+            className="inline-flex items-center justify-center rounded-full border border-white/35 bg-white/10 px-8 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-white/20"
+          >
+            Sell on FruitBasket
+          </Link>
         </div>
-    );
+      </div>
+    </section>
+  );
 };
 
 export default Hero;

@@ -1,181 +1,288 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, ShoppingCart, User, Search, MapPin, ChevronDown, Package, Heart, Truck } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Menu, X, ShoppingCart, User, Search, MapPin, ChevronDown,
+  Package, Heart, Truck, Sprout, LayoutDashboard, LogOut, Shield,
+} from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import UniversalSearch from './UniversalSearch';
+import Logo from '../Logo';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { getCartCount } = useCart();
+  const { user, logout, isFarmer, isAdmin } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  const firstName = user?.name?.split(' ')[0] || 'there';
+  const cartCount = getCartCount();
 
   return (
     <>
-      {/* Top Utility Bar */}
-      <div className="bg-gray-100 text-[10px] sm:text-xs py-1.5 px-4 sm:px-6 lg:px-8 hidden md:block border-b border-gray-200">
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-gray-500">
-          <div className="flex items-center gap-6">
-            <span className="hover:text-green-600 cursor-pointer transition-colors font-medium">Sell on FruitBasket</span>
-            <span className="hover:text-green-600 cursor-pointer transition-colors font-medium">Download App</span>
+      <div className="hidden md:block border-b border-gray-200 bg-gray-50">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-xs text-gray-500 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-5">
+            <Link to="/sell" className="font-medium transition-colors hover:text-green-700">
+              Sell on FruitBasket
+            </Link>
+            <Link to="/cooperative" className="font-medium transition-colors hover:text-green-700">
+              How the cooperative works
+            </Link>
           </div>
-          <div className="flex items-center gap-6">
-            <span className="flex items-center gap-1.5 cursor-pointer hover:text-green-600 transition-colors"><MapPin size={12} /> Deliver to: <strong>Login to Set Location</strong></span>
-            <Link to="/contact" className="hover:text-green-600 cursor-pointer transition-colors font-medium">Help & Support</Link>
+          <div className="flex items-center gap-5">
+            <span className="hidden lg:inline-flex items-center gap-1.5">
+              <MapPin size={12} /> Fresh from farms near you
+            </span>
+            <Link to="/help" className="font-medium transition-colors hover:text-green-700">
+              Help
+            </Link>
+            <Link to="/journal" className="font-medium transition-colors hover:text-green-700">
+              Journal
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Main Navbar */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 gap-4 sm:gap-8">
+      <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-14 items-center gap-2 sm:h-16 sm:gap-6">
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              className="tap-target flex items-center justify-center rounded-lg text-gray-600 md:hidden"
+              aria-label="Open menu"
+            >
+              <Menu size={22} />
+            </button>
 
-            {/* Logo */}
-            <div className="flex-shrink-0 flex items-center gap-2">
-              <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 text-gray-600">
-                <Menu size={24} />
+            <Logo compact className="mr-1" height={36} />
+
+            <UniversalSearch />
+
+            <div className="ml-auto flex items-center gap-0.5 sm:gap-2">
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                className="tap-target flex items-center justify-center rounded-xl text-gray-700 hover:bg-gray-50 md:hidden"
+                aria-label="Search"
+              >
+                <Search size={22} />
               </button>
-              <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent tracking-tighter">
-                FruitBasket
+
+              <Link
+                to={user ? '/profile' : '/login'}
+                className="tap-target flex items-center justify-center rounded-xl text-gray-700 hover:bg-gray-50 md:hidden"
+                aria-label={user ? 'Account' : 'Sign in'}
+              >
+                <User size={22} />
               </Link>
-            </div>
 
-            {/* Search Bar - The Centerpiece */}
-            <div className="flex-1 max-w-2xl hidden md:flex relative">
-              <div className="relative w-full group">
-                <input
-                  type="text"
-                  placeholder="Search for fresh vegetables, fruits, staples..."
-                  className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full pl-4 pr-12 py-2.5 transition-all group-hover:bg-white group-hover:shadow-md outline-none"
-                />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <Search size={20} className="text-gray-400 group-hover:text-green-600" />
-                </div>
-              </div>
-            </div>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-4 sm:gap-6">
-
-              {/* Account Dropdown Trigger */}
-              <div className="hidden md:flex flex-col cursor-pointer group relative">
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  Hello, Sign in
-                </div>
-                <div className="flex items-center gap-1 font-bold text-sm text-gray-800 group-hover:text-green-600">
-                  Account & Lists <ChevronDown size={14} />
-                </div>
-                {/* Dropdown (Hover) */}
-                <div className="absolute top-10 right-0 w-48 bg-white border border-gray-200 shadow-lg rounded-lg p-2 hidden group-hover:block transition-all transform origin-top-right z-50">
-                  <Link to="/login" className="block w-full text-center bg-gradient-to-r from-green-400 to-green-600 text-white font-bold py-2 rounded mb-2 shadow-sm">Sign In</Link>
-                  <div className="text-xs text-center text-gray-500 mb-2 border-b border-gray-100 pb-2">New customer? <Link to="/register" className="text-blue-600 hover:underline">Start here.</Link></div>
-                  <ul className="text-sm text-gray-700 space-y-1">
+              <div className="group relative hidden md:block">
+                <button
+                  type="button"
+                  className="flex h-11 items-center gap-1 rounded-xl px-3 text-left hover:bg-gray-50"
+                >
+                  <div>
+                    <div className="text-[11px] leading-none text-gray-500">
+                      {user ? `Hello, ${firstName}` : 'Hello, Sign in'}
+                    </div>
+                    <div className="mt-1 flex items-center gap-0.5 text-sm font-bold leading-none text-gray-900 group-hover:text-green-700">
+                      Account <ChevronDown size={14} />
+                    </div>
+                  </div>
+                </button>
+                <div className="invisible absolute right-0 top-full z-50 w-56 rounded-xl border border-gray-200 bg-white p-2 opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100">
+                  {!user ? (
+                    <>
+                      <Link to="/login" className="mb-2 block rounded-lg bg-green-600 py-2 text-center text-sm font-bold text-white">
+                        Sign In
+                      </Link>
+                      <p className="mb-2 border-b border-gray-100 pb-2 text-center text-xs text-gray-500">
+                        New here?{' '}
+                        <Link to="/register" className="font-semibold text-green-700 hover:underline">
+                          Create an account
+                        </Link>
+                      </p>
+                    </>
+                  ) : (
+                    <p className="mb-2 border-b border-gray-100 px-2 pb-2 text-xs text-gray-500">
+                      Signed in as <strong className="text-gray-800">{user.email}</strong>
+                    </p>
+                  )}
+                  <ul className="space-y-0.5 text-sm text-gray-700">
                     <li>
-                      <Link to="/orders" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-green-50 transition-colors hover:text-green-700 font-medium rounded-md">
+                      <Link to="/orders" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium hover:bg-green-50 hover:text-green-700">
                         <Package size={16} /> My Orders
                       </Link>
                     </li>
                     <li>
-                      <Link to="/returns" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-green-50 transition-colors hover:text-green-700 font-medium rounded-md">
-                        <Truck size={16} /> Returns & Refunds
+                      <Link to="/returns" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium hover:bg-green-50 hover:text-green-700">
+                        <Truck size={16} /> Returns
                       </Link>
                     </li>
                     <li>
-                      <Link to="/profile" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-green-50 transition-colors hover:text-green-700 font-medium rounded-md">
+                      <Link to="/profile" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium hover:bg-green-50 hover:text-green-700">
                         <User size={16} /> Manage Profile
                       </Link>
                     </li>
                     <li>
-                      <Link to="/wishlist" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-green-50 transition-colors hover:text-green-700 font-medium rounded-md">
-                        <Heart size={16} /> Your Wishlist
+                      <Link to="/wishlist" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium hover:bg-green-50 hover:text-green-700">
+                        <Heart size={16} /> Wishlist
                       </Link>
                     </li>
-                    <li className="px-3 py-2 hover:text-green-600 cursor-pointer font-medium hover:bg-green-50 rounded-md transition-colors flex items-center gap-2">
-                      <Package size={16} /> Sell Products
+                    {isFarmer && (
+                      <li>
+                        <Link to="/farmer" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium hover:bg-green-50 hover:text-green-700">
+                          <LayoutDashboard size={16} /> My Farm Dashboard
+                        </Link>
+                      </li>
+                    )}
+                    {isAdmin && (
+                      <li>
+                        <Link to="/admin" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium hover:bg-green-50 hover:text-green-700">
+                          <Shield size={16} /> Admin
+                        </Link>
+                      </li>
+                    )}
+                    <li>
+                      <Link to="/sell" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium hover:bg-green-50 hover:text-green-700">
+                        <Sprout size={16} /> Sell on FruitBasket
+                      </Link>
                     </li>
+                    {user && (
+                      <li>
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left font-medium hover:bg-red-50 hover:text-red-700"
+                        >
+                          <LogOut size={16} /> Sign Out
+                        </button>
+                      </li>
+                    )}
                   </ul>
                 </div>
               </div>
 
-              {/* Returns & Orders */}
-              <Link to="/orders" className="hidden md:flex flex-col cursor-pointer hover:opacity-80">
-                <span className="text-xs text-gray-500">Returns</span>
-                <span className="font-bold text-sm text-gray-800">& Orders</span>
+              <Link
+                to="/orders"
+                className="hidden h-11 flex-col justify-center rounded-xl px-3 hover:bg-gray-50 md:flex"
+              >
+                <span className="text-[11px] leading-none text-gray-500">Returns</span>
+                <span className="mt-1 text-sm font-bold leading-none text-gray-900">& Orders</span>
               </Link>
 
-              {/* Cart */}
-              <Link to="/cart" className="flex items-center gap-2 cursor-pointer hover:text-green-600 relative">
-                <div className="relative">
-                  <ShoppingCart size={28} />
-                  {getCartCount() > 0 && (
-                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full text-white text-xs font-bold flex items-center justify-center border-2 border-white">
-                      {getCartCount()}
+              <Link
+                to="/cart"
+                className="tap-target relative flex items-center justify-center gap-2 rounded-xl px-2 hover:bg-gray-50 hover:text-green-700"
+                aria-label={`Cart${cartCount ? `, ${cartCount} items` : ''}`}
+              >
+                <span className="relative">
+                  <ShoppingCart size={24} />
+                  {cartCount > 0 && (
+                    <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                      {cartCount}
                     </span>
                   )}
-                </div>
-                <span className="hidden md:block font-bold text-sm">Cart</span>
+                </span>
+                <span className="hidden text-sm font-bold lg:inline">Cart</span>
               </Link>
             </div>
           </div>
 
-          {/* Mobile Search - Visible only on mobile */}
-          <div className="md:hidden pb-3">
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="Search FruitBasket..."
-                className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full pl-10 p-2.5"
-              />
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Search size={18} className="text-gray-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* Secondary Nav - Categories */}
-          <div className="flex items-center gap-6 overflow-x-auto text-sm font-medium text-gray-700 pb-2 hide-scrollbar">
-            <div className="flex items-center gap-1 cursor-pointer hover:text-green-600 whitespace-nowrap">
-              <Menu size={18} /> All
-            </div>
-            {['Fresh Vegetables', 'Seasonal Fruits', 'Organic Grains', 'Dairy & Eggs', 'Best Sellers', 'New Arrivals', 'Farmer Spotlight'].map(item => (
-              <Link key={item} to="/marketplace" className="hover:text-green-600 whitespace-nowrap transition-colors">
-                {item}
+          <div className="flex items-center gap-1 overflow-x-auto border-t border-gray-100 py-1 text-sm font-medium text-gray-700 hide-scrollbar sm:gap-2 sm:py-2">
+            <Link to="/marketplace" className="tap-target inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2 hover:text-green-700">
+              <Menu size={16} /> Shop All
+            </Link>
+            {[
+              ['Fruits', '/marketplace?q=fruit'],
+              ['Vegetables', '/marketplace'],
+              ['Our Farmers', '/farmers'],
+              ['Cooperative', '/cooperative'],
+            ].map(([label, to]) => (
+              <Link key={label} to={to} className="tap-target inline-flex shrink-0 items-center whitespace-nowrap px-2 hover:text-green-700">
+                {label}
               </Link>
             ))}
           </div>
         </div>
 
-        {/* Mobile Menu Overlay */}
         {isOpen && (
-          <div className="fixed inset-0 z-50 flex">
-            <div className="w-4/5 max-w-xs bg-white h-full shadow-2xl flex flex-col">
-              <div className="bg-green-600 p-4 text-white flex justify-between items-center">
-                <div className="flex items-center gap-2 font-bold text-lg">
-                  <User size={24} className="bg-white/20 p-1 rounded-full text-white box-content" />
-                  Browse
+          <div className="fixed inset-0 z-50 flex md:hidden">
+            <div className="flex h-full w-4/5 max-w-xs flex-col bg-white shadow-2xl">
+              <div className="flex items-center justify-between bg-green-600 p-4 text-white">
+                <div className="flex items-center gap-2 text-lg font-bold">
+                  <User size={22} />
+                  {user ? firstName : 'Browse'}
                 </div>
-                <button onClick={() => setIsOpen(false)}><X size={24} /></button>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="tap-target flex items-center justify-center"
+                  aria-label="Close menu"
+                >
+                  <X size={22} />
+                </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4">
-                <div className="text-lg font-bold text-gray-900 mb-4">Trending</div>
-                <ul className="space-y-4 text-gray-600 mb-6 border-b border-gray-100 pb-6">
-                  <li>Best Sellers</li>
-                  <li>New Releases</li>
-                  <li>Movers & Shakers</li>
-                </ul>
-
-                <div className="text-lg font-bold text-gray-900 mb-4">Shop By Category</div>
-                <ul className="space-y-4 text-gray-600">
-                  <li>Vegetables</li>
-                  <li>Fruits</li>
-                  <li>Grains</li>
-                  <li>Dairy</li>
-                </ul>
+              <div className="flex-1 space-y-1 overflow-y-auto p-3 text-gray-700">
+                {[
+                  ['/marketplace', 'Marketplace'],
+                  ['/farmers', 'Farmers'],
+                  ['/journal', 'Journal'],
+                  ['/help', 'Help Center'],
+                  ['/orders', 'My Orders'],
+                  ['/profile', 'Profile'],
+                  ['/sell', 'Sell on FruitBasket'],
+                ].map(([to, label]) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={() => setIsOpen(false)}
+                    className="tap-target flex items-center rounded-lg px-3 font-medium hover:bg-green-50"
+                  >
+                    {label}
+                  </Link>
+                ))}
+                {isFarmer && (
+                  <Link to="/farmer" onClick={() => setIsOpen(false)} className="tap-target flex items-center rounded-lg px-3 font-medium text-green-700 hover:bg-green-50">
+                    My Farm Dashboard
+                  </Link>
+                )}
+                {isAdmin && (
+                  <Link to="/admin" onClick={() => setIsOpen(false)} className="tap-target flex items-center rounded-lg px-3 font-medium text-green-700 hover:bg-green-50">
+                    Admin
+                  </Link>
+                )}
+                {user ? (
+                  <button
+                    type="button"
+                    onClick={() => { handleLogout(); setIsOpen(false); }}
+                    className="tap-target flex w-full items-center rounded-lg px-3 text-left font-medium text-red-600 hover:bg-red-50"
+                  >
+                    Sign Out
+                  </button>
+                ) : (
+                  <Link to="/login" onClick={() => setIsOpen(false)} className="tap-target flex items-center rounded-lg px-3 font-medium text-green-700 hover:bg-green-50">
+                    Sign In
+                  </Link>
+                )}
               </div>
             </div>
-            <div className="flex-1 bg-black/50" onClick={() => setIsOpen(false)}></div>
+            <button type="button" className="flex-1 bg-black/50" aria-label="Close menu overlay" onClick={() => setIsOpen(false)} />
           </div>
         )}
       </nav>
+
+      {searchOpen && (
+        <UniversalSearch mobileOpen onMobileClose={() => setSearchOpen(false)} />
+      )}
     </>
   );
 };

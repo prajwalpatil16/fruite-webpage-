@@ -1,0 +1,16 @@
+<svg width="360" height="100" viewBox="0 0 360 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FruitBasket">
+  <g transform="translate(10,14)">
+    <path d="M8 34 L64 34 L56 70 Q60 76 36 76 Q12 76 16 70 Z" fill="#2E7D32"/>
+    <line x1="16" y1="44" x2="56" y2="44" stroke="#F4F1E8" stroke-width="2.5" opacity="0.55"/>
+    <line x1="14" y1="56" x2="58" y2="56" stroke="#F4F1E8" stroke-width="2.5" opacity="0.55"/>
+    <ellipse cx="36" cy="34" rx="28" ry="7" fill="#3F9142"/>
+    <ellipse cx="36" cy="33" rx="28" ry="7" fill="none" stroke="#256428" stroke-width="1.5"/>
+    <path d="M18 32 Q36 4 54 32" fill="none" stroke="#256428" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="27" cy="24" r="9" fill="#D85A30"/>
+    <path d="M27 15 Q24 8 19 9" fill="none" stroke="#639922" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="45" cy="22" r="8" fill="#EF9F27"/>
+    <path d="M45 14 Q41 6 33 6 Q37 15 45 14 Z" fill="#639922"/>
+  </g>
+  <text x="92" y="52" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="700" fill="#2E7D32">Fruit<tspan fill="#D85A30">Basket</tspan></text>
+  <text x="93" y="72" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="2" fill="#5F5E5A">FARM TO YOUR DOOR</text>
+</svg>

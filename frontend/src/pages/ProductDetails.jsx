@@ -1,138 +1,234 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ShoppingBag, Heart, ShieldCheck, Truck, Star, ArrowLeft, Leaf, Droplet, Sun, MapPin } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, ShoppingCart, MapPin, Loader2, Sprout } from 'lucide-react';
+import { api } from '../api';
 import { useCart } from '../context/CartContext';
 
 const ProductDetails = () => {
-    const { id } = useParams();
-    const { addToCart } = useCart();
-    const [quantity, setQuantity] = useState(1);
-    
-    // Mock product data fetch based on ID
-    const product = {
-        id,
-        name: 'Organic Alfonso Mangoes',
-        price: 300,
-        unit: 'kg',
-        image: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&q=80&w=800',
-        rating: 4.9,
-        reviews: 128,
-        description: 'Directly sourced from the sun-drenched orchards of Ratnagiri, our Alfonso mangoes are known for their buttery texture and honey-like sweetness. Hand-picked at perfect maturity to ensure the most vibrant flavor profile.',
-        farmer: 'Ramesh Patil',
-        location: 'Ratnagiri, Maharashtra',
-        nutrition: {
-            calories: '60 kcal',
-            vitaminC: '60%',
-            potassium: '168mg'
-        }
+  const { id } = useParams();
+  const { addToCart } = useCart();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [slide, setSlide] = useState(0);
+  const scrollerRef = useRef(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      setError('');
+      const { ok, data } = await api(`/api/products/${id}`);
+      if (cancelled) return;
+      if (ok) setProduct(data);
+      else setError(data?.msg || 'This product is no longer available.');
+      setLoading(false);
     };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
 
+  const handleAdd = async () => {
+    if (!product) return;
+    setAdding(true);
+    await addToCart(product);
+    setAdding(false);
+  };
+
+  if (loading) {
     return (
-        <div className="bg-white min-h-screen pb-20 font-sans">
-            {/* Nav Header */}
-            <div className="bg-gray-50 border-b border-gray-100 py-4 mb-8">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-                    <Link to="/marketplace" className="flex items-center gap-2 text-gray-500 hover:text-green-600 font-bold transition-colors">
-                        <ArrowLeft size={20} /> Back to Market
-                    </Link>
-                    <div className="flex gap-4">
-                        <button className="p-2.5 bg-white shadow-sm border border-gray-200 rounded-full text-gray-400 hover:text-red-500 transition-colors">
-                            <Heart size={20} />
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-                    
-                    {/* Image Gallery */}
-                    <div className="lg:col-span-7 space-y-4">
-                        <div className="rounded-[40px] overflow-hidden bg-gray-50 aspect-square shadow-xl shadow-gray-200/50">
-                            <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-                        </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="lg:col-span-5 pt-4">
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">Organic Certified</span>
-                            <div className="flex items-center gap-1 text-amber-500 ml-2">
-                                <Star size={14} className="fill-amber-500" />
-                                <span className="text-sm font-black">{product.rating}</span>
-                                <span className="text-gray-400 text-xs font-bold">({product.reviews} reviews)</span>
-                            </div>
-                        </div>
-
-                        <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 leading-tight">{product.name}</h1>
-                        <p className="text-3xl font-black text-green-600 mb-8 flex items-baseline gap-1">
-                            ₹{product.price} <span className="text-sm text-gray-400 font-bold uppercase tracking-widest">/ {product.unit}</span>
-                        </p>
-
-                        <div className="space-y-6 mb-10">
-                            <p className="text-gray-600 leading-relaxed font-medium">
-                                {product.description}
-                            </p>
-                            
-                            <div className="grid grid-cols-3 gap-4">
-                                <div className="bg-gray-50 p-4 rounded-3xl text-center">
-                                    <Leaf className="mx-auto mb-2 text-green-600" size={24} />
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase">100% Raw</p>
-                                </div>
-                                <div className="bg-gray-50 p-4 rounded-3xl text-center">
-                                    <Droplet className="mx-auto mb-2 text-blue-500" size={24} />
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase">Pesticide Free</p>
-                                </div>
-                                <div className="bg-gray-50 p-4 rounded-3xl text-center">
-                                    <Sun className="mx-auto mb-2 text-amber-500" size={24} />
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase">Sun Ripened</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Farmer Section */}
-                        <div className="bg-green-50 p-6 rounded-3xl border border-green-100 flex items-center gap-6 mb-10 shadow-sm shadow-green-900/5">
-                            <div className="w-16 h-16 rounded-2xl bg-green-200 flex items-center justify-center text-green-700 text-2xl font-black">
-                                {product.farmer[0]}
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">Harvested By</p>
-                                <h4 className="text-lg font-bold text-gray-900 leading-none mb-1">{product.farmer}</h4>
-                                <p className="text-sm text-gray-500 font-medium flex items-center gap-1.5"><MapPin size={14} /> {product.location}</p>
-                            </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-4 mb-10">
-                            <div className="flex items-center bg-gray-100 p-2 rounded-2xl border border-gray-100">
-                                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 flex items-center justify-center hover:bg-white rounded-xl transition-all font-bold text-xl">-</button>
-                                <span className="w-12 text-center font-black text-lg">{quantity}</span>
-                                <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 flex items-center justify-center hover:bg-white rounded-xl transition-all font-bold text-xl">+</button>
-                            </div>
-                            <button 
-                                onClick={() => addToCart({ ...product, quantity })}
-                                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-green-600/30 hover:shadow-green-600/40 transition-all flex items-center justify-center gap-3 active:scale-95"
-                            >
-                                <ShoppingBag size={24} /> Add to Cart
-                            </button>
-                        </div>
-
-                        {/* Trust Badges */}
-                        <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-8">
-                            <div className="flex items-center gap-3 text-gray-500">
-                                <ShieldCheck size={20} className="text-green-500" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Quality Inspected</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-gray-500">
-                                <Truck size={20} className="text-green-500" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Flash Delivery</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Loader2 className="animate-spin text-green-600" size={40} />
+      </div>
     );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-20 text-center">
+        <h1 className="mb-3 text-2xl font-bold text-gray-900">Product not found</h1>
+        <p className="mb-6 text-gray-500">{error || 'It may have sold out or left the market.'}</p>
+        <Link to="/marketplace" className="font-bold text-green-700 hover:underline">
+          Back to marketplace
+        </Link>
+      </div>
+    );
+  }
+
+  const farm = product.farmer_profile;
+  const inStock = product.stock_quantity > 0;
+  const images = [
+    product.image_url,
+    ...(product.gallery_urls || []),
+  ].filter(Boolean);
+  if (images.length === 0) {
+    images.push(
+      'https://images.unsplash.com/photo-1619566633748-5d8de0d59248?auto=format&fit=crop&q=80&w=800'
+    );
+  }
+
+  const onScroll = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    setSlide(idx);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-28 font-sans sm:pb-10 sm:py-10">
+      <div className="mx-auto max-w-6xl sm:px-6 lg:px-8">
+        <Link
+          to="/marketplace"
+          className="tap-target mx-4 mb-4 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-green-700 sm:mx-0 sm:mb-6"
+        >
+          <ArrowLeft size={16} /> Back
+        </Link>
+
+        <div className="overflow-hidden bg-white sm:rounded-3xl sm:border sm:border-gray-100 sm:shadow-sm lg:grid lg:grid-cols-2">
+          {/* Swipeable gallery (scroll-snap) */}
+          <div className="relative bg-gray-100">
+            <div
+              ref={scrollerRef}
+              onScroll={onScroll}
+              className="flex aspect-[4/3] snap-x snap-mandatory overflow-x-auto hide-scrollbar sm:aspect-square"
+            >
+              {images.map((src, i) => (
+                <div key={i} className="h-full w-full shrink-0 snap-center">
+                  <img
+                    src={src}
+                    alt={`${product.name} ${i + 1}`}
+                    className="h-full w-full object-cover"
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                  />
+                </div>
+              ))}
+            </div>
+            {images.length > 1 && (
+              <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+                {images.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-label={`Image ${i + 1}`}
+                    onClick={() => {
+                      scrollerRef.current?.scrollTo({
+                        left: i * (scrollerRef.current?.clientWidth || 0),
+                        behavior: 'smooth',
+                      });
+                    }}
+                    className={`h-2 w-2 rounded-full transition-colors ${
+                      slide === i ? 'bg-white' : 'bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+            {/* Desktop thumbnails when multiple */}
+            {images.length > 1 && (
+              <div className="hidden gap-2 p-3 sm:flex">
+                {images.map((src, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => {
+                      scrollerRef.current?.scrollTo({
+                        left: i * (scrollerRef.current?.clientWidth || 0),
+                        behavior: 'smooth',
+                      });
+                    }}
+                    className={`h-16 w-16 overflow-hidden rounded-xl border-2 ${
+                      slide === i ? 'border-green-600' : 'border-transparent'
+                    }`}
+                  >
+                    <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col p-5 sm:p-8 lg:p-10">
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-green-700">
+              {product.category_name || 'Fresh produce'}
+            </p>
+            <h1 className="mb-3 text-2xl font-extrabold text-gray-900 sm:text-3xl md:text-4xl">
+              {product.name}
+            </h1>
+            <p className="mb-5 text-sm leading-relaxed text-gray-600 sm:text-base">
+              {product.description || 'Fresh from the farm, packed for your table.'}
+            </p>
+
+            <div className="mb-4 flex items-end gap-2">
+              <span className="text-3xl font-black text-green-700">₹{product.price}</span>
+              <span className="pb-1 text-sm font-medium text-gray-500">/ {product.unit || 'unit'}</span>
+            </div>
+
+            <p className={`mb-6 text-sm font-bold ${inStock ? 'text-gray-700' : 'text-red-600'}`}>
+              {inStock
+                ? `${product.stock_quantity} in stock — sold this week from the farm`
+                : 'Currently out of stock'}
+            </p>
+
+            {farm && (
+              <Link
+                to={`/farmers?highlight=${farm.id}`}
+                className="mb-6 flex min-h-[44px] items-start gap-3 rounded-2xl border border-green-100 bg-green-50 p-4 transition hover:bg-green-100/60"
+              >
+                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white">
+                  {farm.photo_url ? (
+                    <img src={farm.photo_url} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-green-700">
+                      <Sprout size={22} />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-wider text-green-700">Grown by</p>
+                  <p className="font-bold text-gray-900">{farm.farm_name}</p>
+                  <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
+                    <MapPin size={12} /> {farm.location}
+                  </p>
+                </div>
+              </Link>
+            )}
+
+            <button
+              type="button"
+              onClick={handleAdd}
+              disabled={adding || !inStock}
+              className="tap-target mt-auto hidden w-full items-center justify-center gap-2 rounded-2xl bg-green-600 text-sm font-bold text-white shadow-lg shadow-green-600/20 disabled:opacity-50 sm:flex"
+            >
+              {adding ? <Loader2 className="animate-spin" /> : <ShoppingCart size={20} />}
+              {!inStock ? 'Out of stock' : 'Add to basket'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:hidden">
+        <div className="mx-auto flex max-w-lg items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-bold text-gray-900">{product.name}</p>
+            <p className="text-base font-black text-green-700">₹{product.price}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={adding || !inStock}
+            className="tap-target flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-green-600 px-5 text-sm font-bold text-white disabled:opacity-50"
+          >
+            {adding ? <Loader2 className="animate-spin" size={18} /> : <ShoppingCart size={18} />}
+            {!inStock ? 'Sold out' : 'Add'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default ProductDetails;

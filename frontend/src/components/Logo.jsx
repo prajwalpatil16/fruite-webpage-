@@ -1,20 +1,63 @@
-export default function Logo() {
-  return (
-    <div className="flex items-center gap-3">
-      {/* Logo Mark */}
-      <div className="w-10 h-10 rounded-xl bg-green-600 flex items-center justify-center">
-        <span className="text-white font-bold text-lg">NB</span>
-      </div>
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-      {/* Brand Text */}
-      <div className="leading-tight">
-        <p className="text-lg font-semibold text-gray-900">
-          Nature’s Basket
-        </p>
-        <p className="text-xs text-gray-500 tracking-wide">
-          From farmers to you
-        </p>
-      </div>
-    </div>
+/**
+ * FruitBasket brand mark.
+ * variant: "full" | "icon" | "white"
+ * compact: icon-only on narrow screens when variant is full
+ */
+const Logo = ({
+  className = '',
+  variant = 'full',
+  compact = false,
+  to = '/',
+  height = 40,
+}) => {
+  const src =
+    variant === 'white'
+      ? '/fruitbasket-logo-white.svg'
+      : variant === 'icon'
+        ? '/fruitbasket-icon.svg'
+        : '/fruitbasket-logo.svg';
+
+  const img = (
+    <>
+      {compact && variant === 'full' ? (
+        <>
+          <img
+            src="/fruitbasket-icon.svg"
+            alt="FruitBasket"
+            className="h-9 w-9 sm:hidden"
+            height={36}
+            width={36}
+          />
+          <img
+            src={src}
+            alt="FruitBasket"
+            className="hidden h-9 w-auto sm:block md:h-10"
+            style={{ height }}
+          />
+        </>
+      ) : (
+        <img
+          src={src}
+          alt="FruitBasket"
+          className={variant === 'icon' ? 'h-9 w-9' : 'h-9 w-auto md:h-10'}
+          style={variant === 'icon' ? undefined : { height }}
+        />
+      )}
+    </>
   );
-}
+
+  if (!to) {
+    return <span className={`inline-flex items-center ${className}`}>{img}</span>;
+  }
+
+  return (
+    <Link to={to} className={`inline-flex shrink-0 items-center ${className}`} aria-label="FruitBasket home">
+      {img}
+    </Link>
+  );
+};
+
+export default Logo;

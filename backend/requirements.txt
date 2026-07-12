@@ -6,3 +6,5 @@ Flask-Cors==4.0.0
 python-dotenv==1.0.1
 Flask-Bcrypt==1.0.1
 Flask-Limiter==3.7.0
+google-auth==2.37.0
+requests==2.32.3
